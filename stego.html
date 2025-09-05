@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invisible Text Steganography Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f4f4f9;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #444;
+    }
+    textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 6px;
+      border: 1px solid #aaa;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 5px 5px 5px 0;
+      color: white;
+    }
+    .encode-btn { background: #4CAF50; }
+    .encode-btn:hover { background: #45a049; }
+    .decode-btn { background: #9C27B0; }
+    .decode-btn:hover { background: #7b1fa2; }
+    .copy-btn { background: #008CBA; }
+    .copy-btn:hover { background: #0077a7; }
+    .clear-btn { background: #f44336; }
+    .clear-btn:hover { background: #d32f2f; }
+    .result {
+      background: #fff;
+      padding: 15px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      margin-top: 15px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      min-height: 40px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Invisible Text Steganography Tool</h1>
+
+  <!-- Encode Section -->
+  <h3>🔐 Encode Message</h3>
+  <textarea id="encodeInput" rows="4" placeholder="Type a message to hide..."></textarea><br>
+  <button class="encode-btn" onclick="encodeMessage()">Encode</button>
+  <button class="copy-btn" onclick="copyText('encodedOutput')">Copy Encoded</button>
+  <button class="clear-btn" onclick="clearField('encodeInput','encodedOutput')">Clear</button>
+  <div class="result" id="encodedOutput"></div>
+
+  <!-- Decode Section -->
+  <h3>🔓 Decode Message</h3>
+  <textarea id="decodeInput" rows="4" placeholder="Paste invisible text here..."></textarea><br>
+  <button class="decode-btn" onclick="decodeMessage()">Decode</button>
+  <button class="copy-btn" onclick="copyText('decodedOutput')">Copy Decoded</button>
+  <button class="clear-btn" onclick="clearField('decodeInput','decodedOutput')">Clear</button>
+  <div class="result" id="decodedOutput"></div>
+
+  <script>
+    const ZWSP = "\u200b";  // Zero Width Space
+    const ZWNJ = "\u200c";  // Zero Width Non-Joiner
+
+    function encodeMessage() {
+      const message = document.getElementById("encodeInput").value;
+      if (!message) {
+        alert("Please enter a message to encode.");
+        return;
+      }
+      let binary = Array.from(message).map(c => c.charCodeAt(0).toString(2).padStart(8, "0")).join("");
+      let hidden = binary.split("").map(b => (b === "0" ? ZWSP : ZWNJ)).join("");
+      document.getElementById("encodedOutput").textContent = hidden || "⚠️ No output";
+    }
+
+    function decodeMessage() {
+      const hidden = document.getElementById("decodeInput").value;
+      if (!hidden) {
+        alert("Please paste invisible text to decode.");
+        return;
+      }
+      let binary = Array.from(hidden).map(c => (c === ZWSP ? "0" : "1")).join("");
+      let decoded = "";
+      for (let i = 0; i < binary.length; i += 8) {
+        decoded += String.fromCharCode(parseInt(binary.slice(i, i + 8), 2));
+      }
+      document.getElementById("decodedOutput").textContent = decoded || "⚠️ Could not decode.";
+    }
+
+    function copyText(elementId) {
+      const text = document.getElementById(elementId).textContent;
+      if (!text) {
+        alert("No text to copy.");
+        return;
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        alert("✅ Text copied to clipboard!");
+      }).catch(err => {
+        alert("❌ Failed to copy: " + err);
+      });
+    }
+
+    function clearField(inputId, outputId) {
+      document.getElementById(inputId).value = "";
+      document.getElementById(outputId).textContent = "";
+    }
+  </script>
+</body>
+</html>
